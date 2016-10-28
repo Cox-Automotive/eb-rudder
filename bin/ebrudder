@@ -9,11 +9,16 @@ var path     = require('path'),
     program  = require('commander'),
     pkg      = require(path.join(__dirname, '../', 'package.json'));
 
+var AWS_USER_NAMES = [ 'ec2-user', 'root', 'ubuntu' ];
 
 program
   .version(pkg.version)
   .description('Tails Elastic Beanstalk logs')
-  .option('-f, --foo', 'enable some foo')
+  .option('-e, --env [name]', 'name of the elastic beanstalk environment')
+  .option('-f, --file [file]', 'file or pattern to tail')
+  .option('-u, --user [username]', 'username to login with (' + AWS_USER_NAMES.join(', ') + '), default: ' + AWS_USER_NAMES[0], AWS_USER_NAMES[0])
+  .option('-k, --key [keypair path]', 'path to your keypair')
+  .option('-p, --private', 'use private IP (needed with VPC), default: false', false)
   .parse(process.argv);
 
-if (!program.args.length) program.help();
+if(!program.args.length) program.help();
