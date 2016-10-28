@@ -19,21 +19,18 @@ program
   .option('-e, --env <name>', 'name of the elastic beanstalk environment')
   .option('-u, --user <username>', 'username to login with (ec2-user|root|ubuntu) [ec2-user]', 'ec2-user')
   .option('-k, --key <keypair path>', 'path to your keypair')
-  .option('-p, --private', 'use private IP (true|false) [false]', false)
+  .option('-i, --private', 'use private IP (true|false) [false]', false)
+  .option('-p, --profile <profile name>', 'profile to use from .aws/credentials')
   .option('-r, --region [regionName]', 'aws region to use (us-east-1|us-east-2|us-west-1|us-west-2) [us-east-1]', 'us-east-1')
   .option('-f, --files <file>', 'set of files to tail, multiples allowed', utils.collect, [])
   .parse(process.argv);
 
 if(_.isEmpty(program.env)) program.help();
 
-if(_.isEmpty(process.env.AWS_SECRET_ACCESS_KEY)){
-    utils.errorAndExit('Missing environment variable: AWS_SECRET_ACCESS_KEY');
+if(!_.isEmpty(program.profile)){ // if they supply a profile configure SDK to use it
+    AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: program.profile});
 }
-else if(_.isEmpty(process.env.AWS_ACCESS_KEY_ID)){
-    utils.errorAndExit('Missing environment variable: AWS_ACCESS_KEY_ID');
-}
-
-if(_.isEmpty(process.env.AWS_DEFAULT_REGION)){
+if(_.isEmpty(process.env.AWS_DEFAULT_REGION) && !AWS.config.region){ // if no region as env var grab from arg
     AWS.config.update({ region: program.region });
 }
 
