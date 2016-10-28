@@ -54,6 +54,7 @@ async.waterfall([
         console.error(clc.white('Fetching instances from EC2..'));
         ec2.describeInstances(ec2Query, function(err, data){
             if(err || !data.Reservations) utils.errorAndExit('Could not find environment with name: ' + program.env, err);
+            if(!data.Reservations.length) utils.errorAndExit('No instances found, please verify your AWS credentials and environment name.');
 
             var instances = [];
             _.each(data.Reservations, function(reservation){
@@ -62,6 +63,9 @@ async.waterfall([
                         ip: program.private ? instance.PrivateIpAddress : instance.PublicIpAddress,
                         color: colors[Math.floor(Math.random()*colors.length)]
                     });
+                    if(_.isEmpty(instances[instances.length-1].ip)){
+                        utils.errorAndExit('Missing IP for: ' + instance.InstanceId + '.. Is it on a VPC? Pass the -i flag to try the private IP.');
+                    }
                 });
             });
 
@@ -89,6 +93,12 @@ async.waterfall([
 
                     lastInst = instance.ip
                     lastFile = file;
+                });
+
+                tail.stderr.on('data', function(data){
+                    if(data.toString().indexOf('Failed to add the host') === -1){
+                        utils.errorAndExit('Error encountered, exiting: ' + data.toString());
+                    }
                 });
             });
         });
