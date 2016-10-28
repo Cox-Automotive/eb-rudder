@@ -4,7 +4,7 @@
   "description": "EB Rudder is a small CLI for tailing Elastic Beanstalk logs.",
   "main": "bin/ebrudder",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha ./test"
   },
   "preferGlobal": true,
   "bin": {
@@ -43,5 +43,9 @@
     "cli-color": "^1.1.0",
     "commander": "^2.9.0",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
   }
 }

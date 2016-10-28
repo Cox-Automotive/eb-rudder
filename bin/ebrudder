@@ -5,11 +5,11 @@ process.title = 'eb-rudder';
 
 var path     = require('path'),
     async    = require('async'),
+    clc      = require('cli-color'),
     _        = require('underscore'),
     program  = require('commander'),
     AWS      = require('aws-sdk'),
-    sys      = require('sys'),
-    spawn    = require('child_process').spawn
+    spawn    = require('child_process').spawn,
     pkg      = require(path.join(__dirname, '../', 'package.json')),
     utils    = require('../lib/utils');
 
@@ -43,6 +43,7 @@ var ec2       = new AWS.EC2(),
 async.waterfall([
     // query EC2 to find all instances
     function(callback){
+        console.error(clc.white('Fetching instances from EC2..'));
         ec2.describeInstances(ec2Query, function(err, data){
             if(err || !data.Reservations) utils.errorAndExit('Could not find environment with name: ' + program.env, err);
 
@@ -58,8 +59,22 @@ async.waterfall([
     },
     // connect and begin tailing
     function(instances, callback){
-        console.log('i got instances!', instances);
-        callback(null, 'ohyea!');
+        console.error(clc.white('Tailing %s Instance%s'), instances.length, instances.length === 1 ? '' : 's');
+
+        _.each(instances, function(instance){
+            _.each(program.files, function(file){
+                // spawn an SSH tail
+                var tail = spawn('ssh', [ '-oStrictHostKeyChecking=no', '-i', program.key, program.user + '@' + instance, 'tail', '-f', '-n 20', file]);
+
+                // tail stdout event
+                tail.stdout.on('data', function(data){
+                    console.log('[', instance, ']: ', file);
+                    _.each(data.toString().split('\n'), function(line){
+                        if(line.length) console.log(line);
+                    });
+                });
+            });
+        });
     }
 ], function(err, data){
     console.log('done!', err, data)
