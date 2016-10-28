@@ -34,9 +34,9 @@ To see a what options are available to a command ask for help:
 
 ### `ebrudder`
 
-`eb rudder` Will query your EC2 environment to find all instance associated with the provided Elastic Beanstalk environment name (`-e`) and then tail all of the specified log files (`-f`) across all instances.
+`ebrudder` Will query your EC2 environment to find all instance associated with the provided Elastic Beanstalk environment name (`-e`) and then tail all of the specified log files (`-f`) across all instances.
 
-Credentials work similar to the AWS CLI. We expect you have environment variables for your AWS key data, optionally you can supply a profile (`-p`) to reference from your `aws/.credentials` file. If you do not have an environment variable for region set we will use the one provided which will default to `us-east-1`. The same applies when using profiles and no region is found.
+Credentials work similar to the AWS CLI. We expect you have environment variables for your AWS key data, optionally you can supply a profile (`-p`) to reference an existing profile from your `aws/.credentials` file. If you do not have an environment variable for region set we will use the one provided which will default to `us-east-1`. The same applies when using profiles and no region is found.
 
 Arguments:
 
@@ -47,3 +47,11 @@ Arguments:
 * `-p, --profile <profile name>` AWS profile to use from .aws/credentials
 * `-r, --region [regionName]` AWS region to use. Supports: `us-east-1`, `us-east-2`, `us-west-1`, `us-west-2` (defaults to `us-east-1`)
 * `-f, --files <file>` File path or pattern to tail, multiples supported
+
+# ALKS
+
+Are you using ALKS? This becomes even simpler:
+
+```
+alks sessions open -o creds -n callinschooliny -f && ebrudder -e searchengine-pp1-master -k ~/.ssh/my.pem -p -P callinschooliny
+```
