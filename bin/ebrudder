@@ -25,6 +25,10 @@ program
   .option('-f, --files <file>', 'set of files to tail, multiples allowed', utils.collect, [])
   .parse(process.argv);
 
+if(process.stdout.isTTY){
+    console.error(clc.whiteBright.bold('ebrudder v%s'), pkg.version);
+}
+
 if(_.isEmpty(program.env)) program.help();
 
 if(!_.isEmpty(program.profile)){ // if they supply a profile configure SDK to use it
@@ -35,6 +39,8 @@ if(_.isEmpty(process.env.AWS_DEFAULT_REGION) && !AWS.config.region){ // if no re
 }
 
 if(!program.files.length) program.files.push('/var/log/eb-activity.log');
+
+utils.checkForUpdate();
 
 var ec2       = new AWS.EC2(),
     ec2Query  = { Filters: [ { Name: 'tag-value', Values: [ program.env ] } ] };

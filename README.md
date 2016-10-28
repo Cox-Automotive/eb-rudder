@@ -8,7 +8,7 @@
 
 EB Rudder is a small CLI for tailing Elastic Beanstalk logs.
 
-### Prerequisites
+## Prerequisites
 
 To install and use the EB Rudder, you will need Node.js (version 4 or greater) and NPM ([nodejs.org](https://nodejs.org/en/download/package-manager)).
 
