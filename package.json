@@ -38,6 +38,7 @@
   },
   "homepage": "https://github.com/Cox-Automotive/eb-rudder#readme",
   "dependencies": {
+    "async": "^2.1.2",
     "aws-sdk": "^2.6.12",
     "cli-color": "^1.1.0",
     "commander": "^2.9.0",

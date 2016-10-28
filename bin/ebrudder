@@ -4,16 +4,14 @@
 process.title = 'eb-rudder';
 
 var path     = require('path'),
-    clc      = require('cli-color'),
+    async    = require('async'),
     _        = require('underscore'),
     program  = require('commander'),
+    AWS      = require('aws-sdk'),
+    sys      = require('sys'),
+    spawn    = require('child_process').spawn
     pkg      = require(path.join(__dirname, '../', 'package.json')),
     utils    = require('../lib/utils');
-
-var collect = function(val, set){
-  set.push(val);
-  return set;
-}
 
 program
   .version(pkg.version)
@@ -21,8 +19,9 @@ program
   .option('-e, --env <name>', 'name of the elastic beanstalk environment')
   .option('-u, --user <username>', 'username to login with (ec2-user|root|ubuntu) [ec2-user]', 'ec2-user')
   .option('-k, --key <keypair path>', 'path to your keypair')
-  .option('-p, --private', 'use private IP (needed with VPC) (true|false) [false]', false)
-  .option('-f, --files <file>', 'set of files to tail, multiples allowed', collect, [])
+  .option('-p, --private', 'use private IP (true|false) [false]', false)
+  .option('-r, --region [regionName]', 'aws region to use (us-east-1|us-east-2|us-west-1|us-west-2) [us-east-1]', 'us-east-1')
+  .option('-f, --files <file>', 'set of files to tail, multiples allowed', utils.collect, [])
   .parse(process.argv);
 
 if(_.isEmpty(program.env)) program.help();
@@ -33,3 +32,35 @@ if(_.isEmpty(process.env.AWS_SECRET_ACCESS_KEY)){
 else if(_.isEmpty(process.env.AWS_ACCESS_KEY_ID)){
     utils.errorAndExit('Missing environment variable: AWS_ACCESS_KEY_ID');
 }
+
+if(_.isEmpty(process.env.AWS_DEFAULT_REGION)){
+    AWS.config.update({ region: program.region });
+}
+
+var ec2       = new AWS.EC2(),
+    ec2Query  = { Filters: [ { Name: 'tag-value', Values: [ program.env ] } ] };
+
+async.waterfall([
+    // query EC2 to find all instances
+    function(callback){
+        ec2.describeInstances(ec2Query, function(err, data){
+            if(err || !data.Reservations) utils.errorAndExit('Could not find environment with name: ' + program.env, err);
+
+            var instances = [];
+            _.each(data.Reservations, function(reservation){
+                _.each(reservation.Instances, function(instance){
+                    instances.push(program.private ? instance.PrivateIpAddress : instance.PublicIpAddress);
+                });
+            });
+
+            callback(null, instances);
+        });
+    },
+    // connect and begin tailing
+    function(instances, callback){
+        console.log('i got instances!', instances);
+        callback(null, 'ohyea!');
+    }
+], function(err, data){
+    console.log('done!', err, data)
+});
