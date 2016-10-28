@@ -7,18 +7,29 @@ var path     = require('path'),
     clc      = require('cli-color'),
     _        = require('underscore'),
     program  = require('commander'),
-    pkg      = require(path.join(__dirname, '../', 'package.json'));
+    pkg      = require(path.join(__dirname, '../', 'package.json')),
+    utils    = require('../lib/utils');
 
-var AWS_USER_NAMES = [ 'ec2-user', 'root', 'ubuntu' ];
+var collect = function(val, set){
+  set.push(val);
+  return set;
+}
 
 program
   .version(pkg.version)
   .description('Tails Elastic Beanstalk logs')
-  .option('-e, --env [name]', 'name of the elastic beanstalk environment')
-  .option('-f, --file [file]', 'file or pattern to tail')
-  .option('-u, --user [username]', 'username to login with (' + AWS_USER_NAMES.join(', ') + '), default: ' + AWS_USER_NAMES[0], AWS_USER_NAMES[0])
-  .option('-k, --key [keypair path]', 'path to your keypair')
-  .option('-p, --private', 'use private IP (needed with VPC), default: false', false)
+  .option('-e, --env <name>', 'name of the elastic beanstalk environment')
+  .option('-u, --user <username>', 'username to login with (ec2-user|root|ubuntu) [ec2-user]', 'ec2-user')
+  .option('-k, --key <keypair path>', 'path to your keypair')
+  .option('-p, --private', 'use private IP (needed with VPC) (true|false) [false]', false)
+  .option('-f, --files <file>', 'set of files to tail, multiples allowed', collect, [])
   .parse(process.argv);
 
-if(!program.args.length) program.help();
+if(_.isEmpty(program.env)) program.help();
+
+if(_.isEmpty(process.env.AWS_SECRET_ACCESS_KEY)){
+    utils.errorAndExit('Missing environment variable: AWS_SECRET_ACCESS_KEY');
+}
+else if(_.isEmpty(process.env.AWS_ACCESS_KEY_ID)){
+    utils.errorAndExit('Missing environment variable: AWS_ACCESS_KEY_ID');
+}
