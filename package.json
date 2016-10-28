@@ -1,6 +1,6 @@
 {
   "name": "eb-rudder",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "EB Rudder is a small CLI for tailing Elastic Beanstalk logs.",
   "main": "bin/ebrudder",
   "scripts": {

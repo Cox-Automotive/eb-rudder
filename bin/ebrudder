@@ -43,7 +43,10 @@ if(!program.files.length) program.files.push('/var/log/eb-activity.log');
 utils.checkForUpdate();
 
 var ec2       = new AWS.EC2(),
-    ec2Query  = { Filters: [ { Name: 'tag-value', Values: [ program.env ] } ] };
+    ec2Query  = { Filters: [ { Name: 'tag-value', Values: [ program.env ] } ] },
+    colors    = [ clc.blue, clc.cyan, clc.redBright, clc.blueBright, clc.magentaBright ],
+    lastInst  = null,
+    lastFile  = null;
 
 async.waterfall([
     // query EC2 to find all instances
@@ -55,7 +58,10 @@ async.waterfall([
             var instances = [];
             _.each(data.Reservations, function(reservation){
                 _.each(reservation.Instances, function(instance){
-                    instances.push(program.private ? instance.PrivateIpAddress : instance.PublicIpAddress);
+                    instances.push({
+                        ip: program.private ? instance.PrivateIpAddress : instance.PublicIpAddress,
+                        color: colors[Math.floor(Math.random()*colors.length)]
+                    });
                 });
             });
 
@@ -69,14 +75,20 @@ async.waterfall([
         _.each(instances, function(instance){
             _.each(program.files, function(file){
                 // spawn an SSH tail
-                var tail = spawn('ssh', [ '-oStrictHostKeyChecking=no', '-i', program.key, program.user + '@' + instance, 'tail', '-f', '-n 20', file]);
+                var tail = spawn('ssh', [ '-oStrictHostKeyChecking=no', '-i', program.key, program.user + '@' + instance.ip, 'tail', '-f', '-n 10', file]);
 
                 // tail stdout event
                 tail.stdout.on('data', function(data){
-                    console.log(clc.white.underline(['\n[', instance, ']', file].join(' ')));
+                    if(lastInst !== instance.ip || lastFile !== file){
+                        console.log(instance.color.underline(['\n[', instance.ip, ']', file].join(' ')));
+                    }
+
                     _.each(data.toString().split('\n'), function(line){
                         if(line.length) console.log(line);
                     });
+
+                    lastInst = instance.ip
+                    lastFile = file;
                 });
             });
         });
