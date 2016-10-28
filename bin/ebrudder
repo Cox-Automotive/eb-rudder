@@ -37,6 +37,8 @@ if(_.isEmpty(process.env.AWS_DEFAULT_REGION)){
     AWS.config.update({ region: program.region });
 }
 
+if(!program.files.length) program.files.push('/var/log/eb-activity.log');
+
 var ec2       = new AWS.EC2(),
     ec2Query  = { Filters: [ { Name: 'tag-value', Values: [ program.env ] } ] };
 
@@ -68,7 +70,7 @@ async.waterfall([
 
                 // tail stdout event
                 tail.stdout.on('data', function(data){
-                    console.log('[', instance, ']: ', file);
+                    console.log(clc.white.underline(['\n[', instance, ']', file].join(' ')));
                     _.each(data.toString().split('\n'), function(line){
                         if(line.length) console.log(line);
                     });
