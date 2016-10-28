@@ -1,8 +1,8 @@
 # EB Rudder
 
-[![NPM](https://nodei.co/npm/eb-rudder.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/eb-rudder/)
+[![NPM](https://nodei.co/npm/ebrudder.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/ebrudder/)
 
-[![Build Status](https://travis-ci.org/Cox-Automotive/eb-rudder.svg?branch=master)](https://travis-ci.org/Cox-Automotive/eb-rudder)
+[![Build Status](https://travis-ci.org/Cox-Automotive/ebrudder.svg?branch=master)](https://travis-ci.org/Cox-Automotive/ebrudder)
 
 ## About
 
@@ -17,7 +17,7 @@ To install and use the EB Rudder, you will need Node.js (version 4 or greater) a
 EB Rudder is meant to be installed via NPM.
 
 ```
-npm install -g eb-rudder
+npm install -g ebrudder
 ```
 
 ## Running
