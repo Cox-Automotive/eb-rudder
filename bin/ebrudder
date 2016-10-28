@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+'use strict';
+
+process.title = 'eb-rudder';
+
+var path     = require('path'),
+    clc      = require('cli-color'),
+    _        = require('underscore'),
+    program  = require('commander'),
+    pkg      = require(path.join(__dirname, '../', 'package.json'));
+
+
+program
+  .version(pkg.version)
+  .description('Tails Elastic Beanstalk logs')
+  .option('-f, --foo', 'enable some foo')
+  .parse(process.argv);
+
+if (!program.args.length) program.help();

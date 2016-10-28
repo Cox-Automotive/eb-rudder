@@ -1,0 +1,42 @@
+{
+  "name": "eb-rudder",
+  "version": "0.0.1",
+  "description": "EB Rudder is a small CLI for tailing Elastic Beanstalk logs.",
+  "main": "bin/ebrudder",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "ebrudder": "bin/ebrudder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cox-Automotive/eb-rudder.git"
+  },
+  "keywords": [
+    "aws",
+    "elasticbeanstalk",
+    "eb",
+    "tail",
+    "logs"
+  ],
+  "author": {
+    "name": "Cox Automotive",
+    "email": "brian.antonelli@coxautoinc.com",
+    "url": "https://github.com/Cox-Automotive/"
+  },
+  "licenses": [{
+    "type": "MIT",
+    "url": "https://github.com/Cox-Automotive/eb-rudder/blob/master/COPYING"
+  }],
+  "bugs": {
+    "url": "https://github.com/Cox-Automotive/eb-rudder/issues"
+  },
+  "homepage": "https://github.com/Cox-Automotive/eb-rudder#readme",
+  "dependencies": {
+    "cli-color": "^1.1.0",
+    "commander": "^2.9.0",
+    "underscore": "^1.8.3"
+  }
+}
