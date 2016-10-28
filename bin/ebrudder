@@ -76,6 +76,4 @@ async.waterfall([
             });
         });
     }
-], function(err, data){
-    console.log('done!', err, data)
-});
+], function(err, data){});
