@@ -9,7 +9,7 @@ var path     = require('path'),
     _        = require('underscore'),
     program  = require('commander'),
     AWS      = require('aws-sdk'),
-    spawn    = require('child_process').spawn,
+    ssh      = require('ssh2').Client,
     pkg      = require(path.join(__dirname, '../', 'package.json')),
     utils    = require('../lib/utils');
 
@@ -78,27 +78,43 @@ async.waterfall([
 
         _.each(instances, function(instance){
             _.each(program.files, function(file){
-                // spawn an SSH tail
-                var tail = spawn('ssh', [ '-oStrictHostKeyChecking=no', '-i', program.key, program.user + '@' + instance.ip, 'tail', '-f', '-n 10', file]);
 
-                // tail stdout event
-                tail.stdout.on('data', function(data){
-                    if(lastInst !== instance.ip || lastFile !== file){
-                        console.error(instance.color.bold.underline(['\n[', instance.ip, ']', file].join(' ')));
-                    }
+                var sshConn = new ssh();
+                sshConn.on('ready', function(){
+                    sshConn.exec('tail -f -n 10 ' + file, function(err, stream){
+                        if(err) utils.errorAndExit(err);
 
-                    _.each(data.toString().split('\n'), function(line){
-                        if(line.length) console.log(instance.color(line));
+                        stream.on('data', function(data){
+                            if(lastInst !== instance.ip || lastFile !== file){
+                                console.error(instance.color.bold.underline(['\n[', instance.ip, ']', file].join(' ')));
+                            }
+
+                            _.each(data.toString().split('\n'), function(line){
+                                if(line.length) console.log(instance.color(line));
+                            });
+
+                            lastInst = instance.ip
+                            lastFile = file;
+                        })
+                        .on('close', function(code, signal){
+                            console.log('close');
+                        })
+                        .stderr.on('data', function(data){
+                            if(data.toString().indexOf('Failed to add the host') === -1){
+                                utils.errorAndExit('Error encountered, exiting: ' + data.toString());
+                            }
+                        })
                     });
-
-                    lastInst = instance.ip
-                    lastFile = file;
-                });
-
-                tail.stderr.on('data', function(data){
-                    if(data.toString().indexOf('Failed to add the host') === -1){
-                        utils.errorAndExit('Error encountered, exiting: ' + data.toString());
-                    }
+                })
+                .on('error', function(err){
+                    utils.errorAndExit(err);
+                })
+                .connect({
+                    host: instance.ip,
+                    username: program.user,
+                    privateKey: require('fs').readFileSync(program.key),
+                    port: 22,
+                    // debug: console.log
                 });
             });
         });
