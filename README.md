@@ -53,5 +53,5 @@ Arguments:
 Are you using ALKS? This becomes even simpler:
 
 ```
-alks sessions open -o creds -n callinschooliny -f && ebrudder -e searchengine-pp1-master -k ~/.ssh/my.pem -p -P callinschooliny
+alks sessions open -o creds -n callinschooliny -f && ebrudder -e searchengine-pp1-master -k ~/.ssh/my.pem -p callinschooliny -i
 ```
