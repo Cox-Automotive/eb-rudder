@@ -34,8 +34,8 @@ if(_.isEmpty(program.env)) program.help();
 if(!_.isEmpty(program.profile)){ // if they supply a profile configure SDK to use it
     AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: program.profile});
 }
-if(_.isEmpty(process.env.AWS_DEFAULT_REGION) && !AWS.config.region){ // if no region as env var grab from arg
-    AWS.config.update({ region: program.region });
+if(!AWS.config.region){ // if no region as env var grab from arg
+    AWS.config.update({ region: !_.isEmpty(process.env.AWS_DEFAULT_REGION) ? process.env.AWS_DEFAULT_REGION : program.region });
 }
 
 if(!program.files.length) program.files.push('/var/log/eb-activity.log');
