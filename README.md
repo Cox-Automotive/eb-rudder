@@ -46,7 +46,7 @@ Arguments:
 * `-i, --private`, Use instance private IP (needed for VPCs) (defaults to `false`)
 * `-p, --profile <profile name>` AWS profile to use from .aws/credentials
 * `-r, --region [regionName]` AWS region to use. Supports: `us-east-1`, `us-east-2`, `us-west-1`, `us-west-2` (defaults to `us-east-1`)
-* `-f, --files <file>` File path or pattern to tail, multiples supported
+* `-f, --files <file>` File path or pattern to tail, multiples supported. (defaults to `/var/log/eb-activity.log`)
 
 # ALKS
 
